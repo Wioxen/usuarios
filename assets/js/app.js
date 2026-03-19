@@ -19,6 +19,17 @@ $(function() {
   $('#searchUsuarios').on('input', function() {
     filterTable();
   });
+
+  // Scroll shadow hints for responsive tables
+  $(document).on('scroll', '.table-responsive', function() {
+    updateScrollShadows(this);
+  });
+
+  // Observe DOM changes to init scroll shadows on new tables
+  var observer = new MutationObserver(function() {
+    $('.table-responsive').each(function() { updateScrollShadows(this); });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 });
 
 /* --- Module Router --- */
@@ -139,4 +150,22 @@ function escHtml(str) {
   var div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+/* --- Scroll Shadow Detection for Responsive Tables --- */
+function updateScrollShadows(el) {
+  var scrollLeft = el.scrollLeft;
+  var maxScroll  = el.scrollWidth - el.clientWidth;
+
+  el.classList.remove('has-scroll-left', 'has-scroll-right', 'has-scroll-both');
+
+  if (maxScroll <= 0) return; // no overflow
+
+  if (scrollLeft > 2 && scrollLeft < maxScroll - 2) {
+    el.classList.add('has-scroll-both');
+  } else if (scrollLeft > 2) {
+    el.classList.add('has-scroll-left');
+  } else if (scrollLeft < maxScroll - 2) {
+    el.classList.add('has-scroll-right');
+  }
 }

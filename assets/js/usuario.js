@@ -51,18 +51,20 @@ function loadUsuarios() {
       }
       // Restore table structure
       wrapper.innerHTML = `
-        <table class="data-table" id="usuariosTable">
-          <thead>
-            <tr>
-              <th>ID <span class="sort-icon">↕</span></th>
-              <th>Usuário</th>
-              <th class="hide-mobile">E-mail</th>
-              <th>Status</th>
-              <th style="text-align:right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="usuariosBody"></tbody>
-        </table>`;
+        <div class="table-responsive">
+          <table class="data-table" id="usuariosTable">
+            <thead>
+              <tr>
+                <th>ID <span class="sort-icon">↕</span></th>
+                <th>Usuário</th>
+                <th class="hide-mobile">E-mail</th>
+                <th>Status</th>
+                <th style="text-align:right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="usuariosBody"></tbody>
+          </table>
+        </div>`;
       renderTable(data);
     },
     error: function(xhr) {
