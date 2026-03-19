@@ -233,18 +233,20 @@ $module = isset($_GET['module']) ? $_GET['module'] : 'dashboard';
 
           <!-- Table Wrapper -->
           <div id="usuariosTableWrapper">
-            <table class="data-table" id="usuariosTable">
-              <thead>
-                <tr>
-                  <th>ID <span class="sort-icon">↕</span></th>
-                  <th>Usuário</th>
-                  <th class="hide-mobile">E-mail</th>
-                  <th>Status</th>
-                  <th style="text-align:right">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="usuariosBody"></tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="data-table" id="usuariosTable">
+                <thead>
+                  <tr>
+                    <th>ID <span class="sort-icon">↕</span></th>
+                    <th>Usuário</th>
+                    <th class="hide-mobile">E-mail</th>
+                    <th>Status</th>
+                    <th style="text-align:right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="usuariosBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
