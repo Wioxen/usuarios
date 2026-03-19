@@ -1,330 +1,351 @@
 <?php
-$module = $_GET['module'] ?? 'dashboard';
+$module = isset($_GET['module']) ? $_GET['module'] : 'dashboard';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digite SaaS — Gestão de Usuários</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="assets/css/app.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/app.css" rel="stylesheet">
 </head>
 <body>
 
-<?php include 'menu.php'; ?>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <?php include 'menu.php'; ?>
 
-<div id="mainContent">
+  <!-- Main Content -->
+  <div class="main-content">
 
-  <!-- ══════════════════════════════════════════
-       TOPBAR
-  ══════════════════════════════════════════ -->
-  <header class="topbar">
-    <div class="topbar-left">
-
-      <button class="btn-menu-toggle" onclick="toggleSidebar()" aria-label="Menu">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <line x1="3" y1="6"  x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-
-      <div class="topbar-titles">
-        <div class="page-title" id="pageTitle">Dashboard</div>
-        <div class="breadcrumb-bar">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
-          <span id="breadcrumbText">Início</span>
+        </button>
+        <div>
+          <h1 id="topbarTitle">Dashboard</h1>
+          <div class="breadcrumb-trail">
+            <span>Digite</span>
+            <span class="sep">›</span>
+            <span id="breadcrumbModule">Dashboard</span>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="topbar-right">
+        <div class="topbar-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" placeholder="Buscar qualquer coisa...">
+        </div>
+        <button class="topbar-icon-btn" title="Notificações">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="badge-dot"></span>
+        </button>
+        <div class="topbar-user">
+          <div class="avatar-sm">AD</div>
+          <div class="user-label">
+            <div class="name">Admin</div>
+            <div class="role">admin</div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-    <div class="topbar-right">
-      <span class="topbar-badge">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-        <?= date('d/m/Y') ?>
-      </span>
-    </div>
-  </header>
+    <!-- Page Body -->
+    <div class="page-body">
 
-  <!-- ══════════════════════════════════════════
-       PAGE BODY
-  ══════════════════════════════════════════ -->
-  <main class="page-body">
-
-    <!-- ─── VIEW: DASHBOARD ─── -->
-    <section id="viewDashboard">
-
-      <div class="row g-3 mb-4">
-
-        <div class="col-sm-6 col-xl-4">
+      <!-- ==============================
+           VIEW: Dashboard
+           ============================== -->
+      <section id="view-dashboard" class="view-section">
+        <div class="stats-row">
+          <!-- Total Users -->
           <div class="stat-card">
             <div class="stat-icon blue">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
-            <div>
-              <div class="stat-value" id="dashTotalUsers">—</div>
+            <div class="stat-info">
               <div class="stat-label">Total de Usuários</div>
+              <div class="stat-value" id="statTotalUsers">...</div>
+              <div class="stat-change up">Atualizado agora</div>
             </div>
           </div>
-        </div>
 
-        <div class="col-sm-6 col-xl-4">
+          <!-- API Status -->
           <div class="stat-card">
             <div class="stat-icon green">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
             </div>
-            <div>
-              <div class="stat-value">Online</div>
+            <div class="stat-info">
               <div class="stat-label">Status da API</div>
+              <div class="stat-value" style="color:var(--accent)">Online</div>
+              <div class="stat-change up">api-usuario.digite.com.br</div>
             </div>
           </div>
-        </div>
 
-        <div class="col-sm-6 col-xl-4">
+          <!-- Version -->
           <div class="stat-card">
             <div class="stat-icon orange">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <line x1="8"  y1="21" x2="16" y2="21"/>
-                <line x1="12" y1="17" x2="12" y2="21"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
             </div>
-            <div>
-              <div class="stat-value">v1.0</div>
-              <div class="stat-label">Versão da Plataforma</div>
+            <div class="stat-info">
+              <div class="stat-label">Versão</div>
+              <div class="stat-value">1.0</div>
+              <div class="stat-change">Estável</div>
+            </div>
+          </div>
+
+          <!-- Uptime -->
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">Uptime</div>
+              <div class="stat-value">99.9%</div>
+              <div class="stat-change up">Últimos 30 dias</div>
             </div>
           </div>
         </div>
 
-      </div><!-- /row -->
-
-      <div class="card p-4">
-        <div class="welcome-block">
-          <div class="welcome-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <div class="quick-action-card" onclick="showModule('usuarios')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" y1="8" x2="19" y2="14"></line>
+              <line x1="22" y1="11" x2="16" y2="11"></line>
             </svg>
+            <h4>Gerenciar Usuários</h4>
+            <p>Criar, editar e excluir registros</p>
           </div>
-          <div>
-            <div class="welcome-title">Bem-vindo ao Digite SaaS</div>
-            <div class="welcome-sub">Plataforma de gestão integrada via API REST</div>
+          <div class="quick-action-card" onclick="showToast('Relatórios em breve!', 'info')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <h4>Relatórios</h4>
+            <p>Exportar dados e análises</p>
+          </div>
+          <div class="quick-action-card" onclick="showToast('Configurações em breve!', 'info')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <h4>Configurações</h4>
+            <p>Preferências do sistema</p>
           </div>
         </div>
-        <p class="welcome-text">
-          Utilize o menu lateral para navegar pelos módulos do sistema. Acesse
-          <strong>Usuários</strong> para realizar o cadastro completo com operações de
-          criação, edição, visualização e exclusão via API REST.
-        </p>
-        <div class="mt-3">
-          <button class="btn-primary-custom" onclick="showModule('usuarios')">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-            </svg>
-            Gerenciar Usuários
-          </button>
-        </div>
-      </div>
+      </section>
 
-    </section><!-- /viewDashboard -->
-
-    <!-- ─── VIEW: USUÁRIOS ─── -->
-    <section id="viewUsuarios" style="display:none;">
-
-      <div class="card">
-
-        <div class="card-header-custom">
-          <div class="card-title">
-            <span class="title-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      <!-- ==============================
+           VIEW: Usuários
+           ============================== -->
+      <section id="view-usuarios" class="view-section">
+        <div class="stats-row" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
               </svg>
-            </span>
-            Usuários Cadastrados
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">Total cadastrados</div>
+              <div class="stat-value" id="statTotalUsers2">...</div>
+            </div>
           </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">Ativos</div>
+              <div class="stat-value" style="color:var(--accent)" id="statActiveUsers">...</div>
+            </div>
+          </div>
+        </div>
 
-          <div class="card-actions">
-            <div class="search-wrap">
-              <span class="search-icon">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                  <circle cx="11" cy="11" r="8"/>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <div class="content-card">
+          <div class="content-card-header">
+            <div class="header-actions" style="flex:1; gap: 14px;">
+              <div class="search-bar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-              </span>
-              <input type="text" id="searchInput" placeholder="Buscar por nome ou e-mail…" oninput="filterTable()"/>
+                <input type="text" id="searchUsuarios" placeholder="Buscar por nome ou e-mail...">
+              </div>
+              <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+                <button class="btn btn-outline btn-sm" onclick="loadUsuarios()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  Atualizar
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openModal()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Novo Usuário
+                </button>
+              </div>
             </div>
-            <button class="btn-secondary-custom" onclick="loadUsuarios()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <polyline points="23 4 23 10 17 10"/>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-              </svg>
-              Atualizar
-            </button>
-            <button class="btn-primary-custom" onclick="openModal()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5"  x2="12" y2="19"/>
-                <line x1="5"  y1="12" x2="19" y2="12"/>
-              </svg>
-              Novo Usuário
-            </button>
+          </div>
+
+          <!-- Table Wrapper -->
+          <div id="usuariosTableWrapper">
+            <table class="data-table" id="usuariosTable">
+              <thead>
+                <tr>
+                  <th>ID <span class="sort-icon">↕</span></th>
+                  <th>Usuário</th>
+                  <th class="hide-mobile">E-mail</th>
+                  <th>Status</th>
+                  <th style="text-align:right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="usuariosBody"></tbody>
+            </table>
           </div>
         </div>
+      </section>
 
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width:60px">ID</th>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th style="width:100px">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody">
-              <tr class="loading-row">
-                <td colspan="4">
-                  <div class="spinner"></div>
-                  <div class="loading-text">Carregando…</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    </div>
+  </div>
+</div>
 
-      </div><!-- /card -->
-
-    </section><!-- /viewUsuarios -->
-
-  </main><!-- /page-body -->
-
-</div><!-- /mainContent -->
-
-<!-- ══════════════════════════════════════════
-     TOAST CONTAINER
-══════════════════════════════════════════ -->
-<div id="toastContainer"></div>
-
-<!-- ══════════════════════════════════════════
-     MODAL — CRIAR / EDITAR USUÁRIO
-══════════════════════════════════════════ -->
-<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+<!-- ==============================
+     MODAL: Criar / Editar Usuário
+     ============================== -->
+<div class="modal fade" id="modalUsuario" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
-        <div class="modal-title" id="modalTitle">
-          <span id="modalIconWrap" class="modal-title-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="12" y1="5"  x2="12" y2="19"/>
-              <line x1="5"  y1="12" x2="19" y2="12"/>
-            </svg>
-          </span>
-          <span id="modalTitleText">Novo Usuário</span>
-        </div>
+        <h5 class="modal-title" id="modalUsuarioLabel">Novo Usuário</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-
       <div class="modal-body">
-        <input type="hidden" id="userId"/>
-
-        <div class="mb-3">
-          <label class="form-label" for="userName">
-            Nome completo <span class="required">*</span>
-          </label>
-          <input type="text" class="form-control" id="userName"
-                 placeholder="Ex: João Silva" maxlength="50" autocomplete="off"/>
+        <div class="form-group">
+          <label>Nome <span class="required">*</span></label>
+          <input type="text" class="form-control" id="fieldNome" placeholder="Nome completo" maxlength="50">
+          <div class="invalid-feedback">Informe um nome válido (até 50 caracteres).</div>
         </div>
-
-        <div class="mb-1">
-          <label class="form-label" for="userEmail">
-            E-mail <span class="required">*</span>
-          </label>
-          <input type="email" class="form-control" id="userEmail"
-                 placeholder="Ex: joao@email.com" maxlength="50" autocomplete="off"/>
+        <div class="form-group mb-0">
+          <label>E-mail <span class="required">*</span></label>
+          <input type="email" class="form-control" id="fieldEmail" placeholder="email@exemplo.com" maxlength="50">
+          <div class="invalid-feedback">Informe um e-mail válido (até 50 caracteres).</div>
         </div>
       </div>
-
       <div class="modal-footer">
-        <button class="btn-secondary-custom" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn-primary-custom" id="btnSave" onclick="saveUser()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          Salvar
+        <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveUser()">
+          <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+          <span id="saveBtnText">Criar Usuário</span>
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL — CONFIRMAR EXCLUSÃO
-══════════════════════════════════════════ -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+<!-- ==============================
+     MODAL: Confirmar Exclusão
+     ============================== -->
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content">
-
-      <div class="modal-body text-center py-4 px-4">
-        <div class="confirm-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            <path d="M10 11v6"/><path d="M14 11v6"/>
-            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-          </svg>
+      <div class="modal-body">
+        <div class="delete-modal-body">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </div>
+          <h4>Excluir Usuário?</h4>
+          <p>Tem certeza que deseja excluir <span class="user-name" id="deleteUserName"></span>? Esta ação não poderá ser desfeita.</p>
         </div>
-        <div class="confirm-title">Excluir usuário?</div>
-        <div class="confirm-text">Esta ação não pode ser desfeita.</div>
       </div>
-
-      <div class="modal-footer justify-content-center border-0 pb-4 pt-0">
-        <button class="btn-secondary-custom" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn-primary-custom btn-danger-custom" id="btnConfirmDelete">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-          </svg>
-          Confirmar
+      <div class="modal-footer" style="justify-content:center">
+        <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteUser()">
+          <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+          Excluir
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════════ -->
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<!-- Módulo PHP → JS -->
 <script>window.INITIAL_MODULE = '<?= htmlspecialchars($module, ENT_QUOTES) ?>';</script>
-
-<!-- Módulo de Usuários (deve vir antes do app.js) -->
 <script src="assets/js/usuario.js"></script>
-
-<!-- Core da Aplicação -->
 <script src="assets/js/app.js"></script>
+
+<script>
+// Also update usuario stats on the usuarios view
+var _origLoadUsuarios = loadUsuarios;
+loadUsuarios = function() {
+  _origLoadUsuarios();
+  $.ajax({
+    url: USUARIO_API,
+    method: 'GET',
+    dataType: 'json',
+    success: function(data) {
+      var count = Array.isArray(data) ? data.length : 0;
+      var el2 = document.getElementById('statTotalUsers2');
+      var elA = document.getElementById('statActiveUsers');
+      if (el2) el2.textContent = count;
+      if (elA) elA.textContent = count;
+    }
+  });
+};
+</script>
 
 </body>
 </html>
