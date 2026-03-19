@@ -448,6 +448,25 @@ a:hover { color: var(--primary-dark); }
   overflow: hidden;
 }
 
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  position: relative;
+}
+
+.table-responsive::-webkit-scrollbar { height: 6px; }
+.table-responsive::-webkit-scrollbar-track { background: var(--bg); }
+.table-responsive::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.table-responsive::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.table-responsive .data-table { min-width: 700px; }
+
+/* Scroll shadow hints */
+.table-responsive.has-scroll-right { box-shadow: inset -12px 0 8px -10px rgba(14,27,58,0.06); }
+.table-responsive.has-scroll-left  { box-shadow: inset 12px 0 8px -10px rgba(14,27,58,0.06); }
+.table-responsive.has-scroll-both  { box-shadow: inset -12px 0 8px -10px rgba(14,27,58,0.06), inset 12px 0 8px -10px rgba(14,27,58,0.06); }
+
 .content-card-header {
   display: flex;
   align-items: center;
@@ -610,6 +629,7 @@ a:hover { color: var(--primary-dark); }
   font-size: 0.88rem;
   color: var(--text-primary);
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .data-table td.muted { color: var(--text-muted); font-size: 0.82rem; }
@@ -993,8 +1013,10 @@ a:hover { color: var(--primary-dark); }
   .page-body { padding: 20px 16px; }
   .topbar { padding: 0 16px; }
   .stats-row { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .content-card-header { padding: 14px 16px; }
-  .data-table td, .data-table thead th { padding: 10px 12px; }
+  .content-card-header { padding: 14px 16px; flex-direction: column; align-items: stretch; }
+  .content-card-header .header-actions { flex-direction: column; }
+  .content-card-header .header-actions > div { margin-left: 0 !important; width: 100%; justify-content: flex-end; }
+  .data-table td, .data-table thead th { padding: 10px 14px; font-size: 0.82rem; }
   .search-bar { width: 100%; }
   .topbar-right .topbar-icon-btn:not(:first-child) { display: none; }
 }
@@ -1002,8 +1024,9 @@ a:hover { color: var(--primary-dark); }
 @media (max-width: 480px) {
   .stats-row { grid-template-columns: 1fr; }
   .stat-card { padding: 16px 18px; }
-  .data-table .hide-mobile { display: none; }
   .quick-actions { grid-template-columns: 1fr; }
+  .data-table td, .data-table thead th { padding: 10px 12px; }
+  .user-cell .user-details .email { display: none; }
 }
 
 /* ============================================
