@@ -1,256 +1,294 @@
-/* ============================================================
-   Digite SaaS — usuario.js
-   Módulo: CRUD completo de Usuários
-   Depende de: jQuery, Bootstrap 5, app.js (showToast, escHtml)
-   ============================================================ */
+/* ============================================
+   usuario.js — Módulo CRUD de Usuários
+   API: https://api-usuario.digite.com.br
+   ============================================ */
 
 const USUARIO_API = 'https://api-usuario.digite.com.br/Usuario';
 
-let userModalBS     = null;
-let deleteModalBS   = null;
-let pendingDeleteId = null;
+let modalUsuario = null;
+let modalDelete  = null;
+let editingId    = null;
 
-/* ── INIT ──────────────────────────────────────────────────
-   Chamado pelo app.js no boot da aplicação
-──────────────────────────────────────────────────────────── */
+/* --- Inicializar modais Bootstrap --- */
 function initUsuarioModals() {
-  userModalBS   = new bootstrap.Modal(document.getElementById('userModal'));
-  deleteModalBS = new bootstrap.Modal(document.getElementById('deleteModal'));
+  const elModal  = document.getElementById('modalUsuario');
+  const elDelete = document.getElementById('modalDelete');
+  if (elModal)  modalUsuario = new bootstrap.Modal(elModal);
+  if (elDelete) modalDelete  = new bootstrap.Modal(elDelete);
 }
 
-/* ── LIST ──────────────────────────────────────────────────
-   GET /Usuario
-──────────────────────────────────────────────────────────── */
+/* --- Carregar lista de usuários --- */
 function loadUsuarios() {
-  $('#tableBody').html(`
-    <tr class="loading-row">
-      <td colspan="4">
-        <div class="spinner"></div>
-        <div class="loading-text">Carregando…</div>
-      </td>
-    </tr>`);
+  const tbody   = document.getElementById('usuariosBody');
+  const wrapper = document.getElementById('usuariosTableWrapper');
+  if (!tbody || !wrapper) return;
 
-  $.ajax({ url: USUARIO_API, method: 'GET' })
-    .done(function (data) {
-      renderTable(Array.isArray(data) ? data : []);
-    })
-    .fail(function (xhr) {
-      showToast(
-        'Erro ao carregar usuários: ' + (xhr.responseJSON?.message || xhr.status),
-        'error'
-      );
-      _renderError();
-    });
-}
+  // Show loading
+  wrapper.innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Carregando usuários...</p>
+    </div>`;
 
-function _renderError() {
-  $('#tableBody').html(`
-    <tr><td colspan="4">
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8"  x2="12"    y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-        </div>
-        <div class="empty-title">Erro ao conectar à API</div>
-        <div class="empty-text">Verifique a conexão e tente novamente.</div>
-      </div>
-    </td></tr>`);
-}
-
-/* ── RENDER TABLE ──────────────────────────────────────────── */
-function renderTable(users) {
-  if (!users.length) {
-    $('#tableBody').html(`
-      <tr><td colspan="4">
-        <div class="empty-state">
-          <div class="empty-icon">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+  $.ajax({
+    url: USUARIO_API,
+    method: 'GET',
+    dataType: 'json',
+    success: function(data) {
+      if (!data || data.length === 0) {
+        wrapper.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
+              <line x1="18" y1="8" x2="23" y2="13"/>
+              <line x1="23" y1="8" x2="18" y2="13"/>
             </svg>
-          </div>
-          <div class="empty-title">Nenhum usuário encontrado</div>
-          <div class="empty-text">Clique em "Novo Usuário" para começar.</div>
-        </div>
-      </td></tr>`);
-    return;
-  }
+            <h4>Nenhum usuário encontrado</h4>
+            <p>Clique em "Novo Usuário" para adicionar o primeiro.</p>
+          </div>`;
+        return;
+      }
+      // Restore table structure
+      wrapper.innerHTML = `
+        <table class="data-table" id="usuariosTable">
+          <thead>
+            <tr>
+              <th>ID <span class="sort-icon">↕</span></th>
+              <th>Usuário</th>
+              <th class="hide-mobile">E-mail</th>
+              <th>Status</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="usuariosBody"></tbody>
+        </table>`;
+      renderTable(data);
+    },
+    error: function(xhr) {
+      wrapper.innerHTML = `
+        <div class="error-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <h4>Erro ao carregar usuários</h4>
+          <p>Não foi possível conectar à API. Tente novamente.</p>
+          <button class="btn btn-primary btn-sm" onclick="loadUsuarios()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Tentar novamente
+          </button>
+        </div>`;
+    }
+  });
+}
 
-  const rows = users.map(u => {
-    const initial = (u.nome || '?').charAt(0).toUpperCase();
+/* --- Renderizar tabela --- */
+function renderTable(users) {
+  const tbody = document.getElementById('usuariosBody');
+  if (!tbody) return;
+
+  window._allUsers = users;
+
+  tbody.innerHTML = users.map(function(u, i) {
+    const initial = u.nome ? u.nome.charAt(0).toUpperCase() : '?';
+    const colorClass = 'avatar-' + (u.id % 6);
     return `
-      <tr data-name="${escHtml((u.nome || '').toLowerCase())}"
-          data-email="${escHtml((u.email || '').toLowerCase())}">
-        <td><span class="id-badge">${u.id}</span></td>
+      <tr>
+        <td class="muted">#${u.id}</td>
         <td>
-          <div class="avatar-cell">
-            <div class="avatar-mini">${initial}</div>
-            <span>${escHtml(u.nome)}</span>
+          <div class="user-cell">
+            <div class="avatar ${colorClass}">${escHtml(initial)}</div>
+            <div class="user-details">
+              <div class="name">${escHtml(u.nome)}</div>
+              <div class="email d-mobile-only">${escHtml(u.email)}</div>
+            </div>
           </div>
         </td>
-        <td><span class="email-cell">${escHtml(u.email)}</span></td>
+        <td class="hide-mobile muted">${escHtml(u.email)}</td>
         <td>
-          <div class="actions-cell">
-            <button class="btn-icon" title="Editar" onclick="editUser(${u.id})">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <span class="badge-status success"><span class="dot"></span>Ativo</span>
+        </td>
+        <td style="text-align:right">
+          <div class="action-btns" style="justify-content:flex-end">
+            <button class="action-btn" onclick="editUser(${u.id})" title="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
             </button>
-            <button class="btn-icon danger" title="Excluir" onclick="confirmDelete(${u.id})">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <button class="action-btn danger" onclick="confirmDelete(${u.id}, '${escHtml(u.nome).replace(/'/g, "\\'")}' )" title="Excluir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                <path d="M10 11v6"/><path d="M14 11v6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
               </svg>
             </button>
           </div>
         </td>
       </tr>`;
   }).join('');
-
-  $('#tableBody').html(rows);
-  filterTable();
 }
 
-/* ── FILTER ────────────────────────────────────────────────── */
+/* --- Filtro client-side --- */
 function filterTable() {
-  const q = ($('#searchInput').val() || '').toLowerCase().trim();
-  $('#tableBody tr[data-name]').each(function () {
-    const match = !q
-      || ($(this).data('name')  || '').includes(q)
-      || ($(this).data('email') || '').includes(q);
-    $(this).toggle(match);
+  const q = (document.getElementById('searchUsuarios')?.value || '').toLowerCase();
+  if (!window._allUsers) return;
+
+  const filtered = window._allUsers.filter(function(u) {
+    return u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
+  renderTable(filtered);
 }
 
-/* ── OPEN MODAL ────────────────────────────────────────────── */
+/* --- Abrir modal criar/editar --- */
 function openModal(id, nome, email) {
-  $('#userId').val(id   || '');
-  $('#userName').val(nome  || '');
-  $('#userEmail').val(email || '');
+  const title  = document.getElementById('modalUsuarioLabel');
+  const fNome  = document.getElementById('fieldNome');
+  const fEmail = document.getElementById('fieldEmail');
+  const btnTxt = document.getElementById('saveBtnText');
+
+  // Reset
+  fNome.classList.remove('is-invalid');
+  fEmail.classList.remove('is-invalid');
 
   if (id) {
-    $('#modalTitleText').text('Editar Usuário');
-    $('#modalIconWrap').html(`
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>`);
+    editingId = id;
+    title.textContent = 'Editar Usuário';
+    btnTxt.textContent = 'Salvar Alterações';
+    fNome.value  = nome || '';
+    fEmail.value = email || '';
   } else {
-    $('#modalTitleText').text('Novo Usuário');
-    $('#modalIconWrap').html(`
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5">
-        <line x1="12" y1="5"  x2="12" y2="19"/>
-        <line x1="5"  y1="12" x2="19" y2="12"/>
-      </svg>`);
+    editingId = null;
+    title.textContent = 'Novo Usuário';
+    btnTxt.textContent = 'Criar Usuário';
+    fNome.value  = '';
+    fEmail.value = '';
   }
 
-  userModalBS.show();
+  modalUsuario.show();
 
-  /* Foca o primeiro campo após abrir */
-  $('#userModal').one('shown.bs.modal', function () {
-    $('#userName').trigger('focus');
+  setTimeout(function() { fNome.focus(); }, 300);
+}
+
+/* --- Editar (GET por ID, depois abre modal) --- */
+function editUser(id) {
+  $.ajax({
+    url: USUARIO_API + '/' + id,
+    method: 'GET',
+    dataType: 'json',
+    success: function(u) {
+      openModal(u.id, u.nome, u.email);
+    },
+    error: function() {
+      showToast('Erro ao carregar dados do usuário.', 'error');
+    }
   });
 }
 
-/* ── GET + OPEN (edição) ────────────────────────────────────── */
-function editUser(id) {
-  $.get(USUARIO_API + '/' + id)
-    .done(function (u) { openModal(u.id, u.nome, u.email); })
-    .fail(function ()  { showToast('Erro ao carregar usuário.', 'error'); });
-}
-
-/* ── SAVE — POST ou PUT ─────────────────────────────────────── */
+/* --- Salvar (POST ou PUT) --- */
 function saveUser() {
-  const id    = $('#userId').val();
-  const nome  = $('#userName').val().trim();
-  const email = $('#userEmail').val().trim();
+  const fNome  = document.getElementById('fieldNome');
+  const fEmail = document.getElementById('fieldEmail');
+  const btn    = document.getElementById('saveBtn');
+  let valid = true;
 
-  if (!nome || !email) {
-    showToast('Preencha nome e e-mail.', 'error');
-    return;
+  // Validate
+  fNome.classList.remove('is-invalid');
+  fEmail.classList.remove('is-invalid');
+
+  const nome  = fNome.value.trim();
+  const email = fEmail.value.trim();
+
+  if (!nome || nome.length > 50) {
+    fNome.classList.add('is-invalid');
+    valid = false;
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    showToast('Informe um e-mail válido.', 'error');
-    return;
+  if (!email || email.length > 50 || !emailRegex.test(email)) {
+    fEmail.classList.add('is-invalid');
+    valid = false;
   }
 
-  const payload = { nome, email };
-  if (id) payload.id = parseInt(id, 10);
+  if (!valid) return;
 
-  const method = id ? 'PUT'                 : 'POST';
-  const url    = id ? USUARIO_API + '/' + id : USUARIO_API;
+  // Spinner
+  btn.disabled = true;
+  btn.querySelector('.spinner-border').classList.remove('d-none');
 
-  const $btn = $('#btnSave');
-  $btn.prop('disabled', true).html(`
-    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-          style="width:13px;height:13px;border-width:2px;"></span>
-    Salvando…`);
+  const payload = { nome: nome, email: email };
+  const method  = editingId ? 'PUT' : 'POST';
+  const url     = editingId ? USUARIO_API + '/' + editingId : USUARIO_API;
+
+  if (editingId) payload.id = editingId;
 
   $.ajax({
-    url,
-    method,
+    url: url,
+    method: method,
     contentType: 'application/json',
     data: JSON.stringify(payload),
-  })
-    .done(function () {
-      userModalBS.hide();
-      showToast(id ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!', 'success');
+    success: function() {
+      modalUsuario.hide();
       loadUsuarios();
-    })
-    .fail(function (xhr) {
-      showToast('Erro: ' + (xhr.responseJSON?.message || xhr.status), 'error');
-    })
-    .always(function () {
-      $btn.prop('disabled', false).html(`
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg> Salvar`);
-    });
-}
-
-/* ── CONFIRM DELETE ─────────────────────────────────────────── */
-function confirmDelete(id) {
-  pendingDeleteId = id;
-  $('#btnConfirmDelete').off('click').on('click', function () {
-    deleteUser(pendingDeleteId);
+      loadDashStats();
+      showToast(
+        editingId ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!',
+        'success'
+      );
+    },
+    error: function(xhr) {
+      let msg = 'Erro ao salvar usuário.';
+      if (xhr.responseJSON && xhr.responseJSON.errors) {
+        msg = Object.values(xhr.responseJSON.errors).flat().join(', ');
+      }
+      showToast(msg, 'error');
+    },
+    complete: function() {
+      btn.disabled = false;
+      btn.querySelector('.spinner-border').classList.add('d-none');
+    }
   });
-  deleteModalBS.show();
 }
 
-/* ── DELETE — DELETE /Usuario/{id} ─────────────────────────── */
-function deleteUser(id) {
-  const $btn = $('#btnConfirmDelete');
-  $btn.prop('disabled', true).html(`
-    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-          style="width:12px;height:12px;border-width:2px;"></span>
-    Excluindo…`);
+/* --- Confirmar exclusão --- */
+function confirmDelete(id, nome) {
+  window._deleteId = id;
+  const nameEl = document.getElementById('deleteUserName');
+  if (nameEl) nameEl.textContent = nome;
+  modalDelete.show();
+}
 
-  $.ajax({ url: USUARIO_API + '/' + id, method: 'DELETE' })
-    .done(function () {
-      deleteModalBS.hide();
-      showToast('Usuário excluído com sucesso.', 'success');
+/* --- Excluir --- */
+function deleteUser() {
+  const id  = window._deleteId;
+  const btn = document.getElementById('deleteBtn');
+  if (!id) return;
+
+  btn.disabled = true;
+  btn.querySelector('.spinner-border').classList.remove('d-none');
+
+  $.ajax({
+    url: USUARIO_API + '/' + id,
+    method: 'DELETE',
+    success: function() {
+      modalDelete.hide();
       loadUsuarios();
-    })
-    .fail(function (xhr) {
-      deleteModalBS.hide();
-      showToast('Erro ao excluir: ' + (xhr.responseJSON?.message || xhr.status), 'error');
-    })
-    .always(function () {
-      $btn.prop('disabled', false).html(`
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-        </svg> Confirmar`);
-    });
+      loadDashStats();
+      showToast('Usuário excluído com sucesso!', 'success');
+    },
+    error: function() {
+      showToast('Erro ao excluir usuário.', 'error');
+    },
+    complete: function() {
+      btn.disabled = false;
+      btn.querySelector('.spinner-border').classList.add('d-none');
+      window._deleteId = null;
+    }
+  });
 }
